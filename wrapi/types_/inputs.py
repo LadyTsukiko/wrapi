@@ -54,7 +54,7 @@ class WorkScheduleFields(str, CapitalizedExceptFirstNameEnum):
     user_ids = auto()
 
 
-class TaskOptionalFields(str, ShortTaskOptionalFields):
+class TaskOptionalFields(ShortTaskOptionalFields, CapitalizedExceptFirstNameEnum):
     AUTHOR_IDS = auto()
     HAS_ATTACHMENTS = auto()
     ATTACHMENT_COUNT = auto()
