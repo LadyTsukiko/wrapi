@@ -30,3 +30,23 @@ class WrikeRefreshTokenAuth(Auth):
 
     def auth_flow(self, request: Request) -> t.Generator[Request, Response, None]:
         raise NotImplementedError()
+        request.headers["X-Authentication"] = self.access_token
+        response = yield request
+        if response.status_code == 401:
+            # If the server issues a 401 response, then issue a request to
+            # refresh tokens, and resend the request.
+            refresh_response = yield self.build_refresh_request()
+            self.update_tokens(refresh_response)
+
+            request.headers["X-Authentication"] = self.access_token
+            yield request
+
+    def build_refresh_request(self):
+        # Return an `httpx.Request` for refreshing tokens.
+        params = {'client_id': self.client_id,'client_secret': self.client_secret, 'grant_type': 'refresh_token', 'scope': 'Default, wsReadWrite', 'refresh_token': self.refresh_token}
+        return httpx.post('https://login.wrike.com/oauth2/token', data={ })
+
+    def update_tokens(self, response):
+        # Update the `.access_token` and `.refresh_token` tokens
+        # based on a refresh response.
+        data = response.json()
